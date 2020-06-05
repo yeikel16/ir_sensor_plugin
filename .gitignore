@@ -77,3 +77,5 @@ build/
 example/android/app/.classpath
 example/android/app/.project
 android/.classpath
+*.ser
+android/.idea/caches/build_file_checksums.ser
