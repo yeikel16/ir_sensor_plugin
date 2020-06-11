@@ -15,6 +15,10 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+  bool _hasIrEmitter = false;
+  String _getCarrierFrequencies = 'Unknown';
+  static const TV_POWER_HEX =
+      "0000 006d 0022 0003 00a9 00a8 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0040 0015 0015 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 0702 00a9 00a8 0015 0015 0015 0e6e";
 
   @override
   void initState() {
@@ -25,11 +29,16 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     String platformVersion;
+    bool hasIrEmitter;
+    String getCarrierFrequencies;
+
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       platformVersion = await IrSensorPlugin.platformVersion;
+      hasIrEmitter = await IrSensorPlugin.hasIrEmitter;
+      getCarrierFrequencies = await IrSensorPlugin.getCarrierFrequencies;
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      platformVersion = 'Failed to get data in a platform.';
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -39,6 +48,8 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _platformVersion = platformVersion;
+      _hasIrEmitter = hasIrEmitter;
+      _getCarrierFrequencies = getCarrierFrequencies;
     });
   }
 
@@ -50,9 +61,83 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            children: [
+              Container(
+                height: 15.0,
+              ),
+              Text('Running on: $_platformVersion\n'),
+              Text('Has Ir Emitter: $_hasIrEmitter\n'),
+              Text('IR Carrier Frequencies:$_getCarrierFrequencies'),
+              Container(
+                height: 15.0,
+              ),
+              RaisedButton(
+                onPressed: () async {
+                  String result =
+                      await IrSensorPlugin.transmit(pattern: TV_POWER_HEX);
+                  debugPrint('Emitting Signal: $result');
+                },
+                child: Text('Transmitt'),
+              ),
+              Container(
+                height: 15.0,
+              ),
+              FormSpecificCode(),
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+class FormSpecificCode extends StatelessWidget {
+  final _formKey = GlobalKey<FormState>();
+  final _textController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      Form(
+          key: _formKey,
+          child: Column(children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'Write specific code to transmit',
+                  suffixIcon: IconButton(
+                    onPressed: () => _textController.clear(),
+                    icon: Icon(Icons.clear),
+                  ),
+                ),
+                controller: _textController,
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Write the code to transmit';
+                  }
+                  return null;
+                },
+              ),
+            )
+          ])),
+      Container(
+        height: 15.0,
+      ),
+      RaisedButton(
+        onPressed: () async {
+          if (_formKey.currentState.validate()) {
+            final String result =
+                await IrSensorPlugin.transmit(pattern: _textController.text);
+            if (result.contains('Emitting') && result != null) {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text('Broadcasting... ${_textController.text}')));
+            }
+          }
+        },
+        child: Text('Transmit Specific Code'),
+      )
+    ]);
   }
 }
