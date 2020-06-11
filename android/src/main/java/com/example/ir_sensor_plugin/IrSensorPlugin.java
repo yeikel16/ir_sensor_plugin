@@ -3,6 +3,7 @@ package com.example.ir_sensor_plugin;
 import android.content.Context;
 import android.hardware.ConsumerIrManager;
 import android.os.Build;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +25,9 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
 
     private MethodChannel channel;
-    ConsumerIrManager mCIR;
-    String codeForEmitter = "";
+    private ConsumerIrManager mCIR;
+    private String codeForEmitter = "";
+    private int frequency = 38028; //Hz
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -52,9 +54,13 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
             case "codeForEmitter":
                 codeForEmitter = call.argument("codeForEmitter");
                 if (codeForEmitter != null) {
-                    emitter();
-                    result.success("Emitting");
-                } else {
+                    transmit(result);
+                }
+                break;
+            case "setFrequency":
+                int newFrequency = call.argument("setFrequency");
+                if (newFrequency != frequency) {
+                    setFrequency(newFrequency);
                 }
                 break;
             case "getCarrierFrequencies":
@@ -74,8 +80,14 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
 
     }
 
-    // This method is used to parse hexadecimal to integer.
-    private int[] decoderData(final String data) {
+    /**
+     * This method convert the Count Pattern to Duration Pattern by multiplying each value by the pulses
+     *
+     * @param data String in hex code.
+     * @return a int Array with all of the Duration values.
+     * @see <a href="http://stackoverflow.com/users/1679571/randy">This method was created by Randy</>
+     */
+    private int[] hex2dec(final String data) {
         List<String> list = new ArrayList<>(Arrays.asList(data.split(" ")));
         list.remove(0);
         int frequency = Integer.parseInt(list.remove(0), 16);
@@ -94,25 +106,44 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
         return pattern;
     }
 
-    private void emitter() {
-        final int frequency = 38;
+    /**
+     * Transmit an infrared pattern,
+     *
+     * @param result return a String "Emitting" if there was no problem in the process.
+     */
+    private void transmit(Result result) {
+        //final int frequency = 38;
         if (!codeForEmitter.equals("")) {
-            mCIR.transmit(frequency, decoderData(codeForEmitter));
+            mCIR.transmit(frequency, hex2dec(codeForEmitter));
+            result.success("Emitting");
         }
     }
 
-    //Check if have IR Emitter
-    private boolean hasIrEmitter(){
+    /**
+     * Check whether the device has an infrared emitter.
+     *
+     * @return "true" if the device has an infrared emitter, else "false" .
+     */
+    private boolean hasIrEmitter() {
         return mCIR.hasIrEmitter();
     }
 
-    // Get the available carrier frequency ranges
+    /**
+     * Change the frequency with which it is transmitted
+     */
+    private void setFrequency(int newFrequency) {
+        this.frequency = newFrequency;
+    }
+
+    /**
+     * Query the infrared transmitter's supported carrier frequencies in `Hertz`.
+     */
     private String getCarrierFrequencies() {
         StringBuilder stringBuilder = new StringBuilder();
         ConsumerIrManager.CarrierFrequencyRange[] freq = mCIR.getCarrierFrequencies();
-        stringBuilder.append("IR Carrier Frequencies:\n");
+        //stringBuilder.append("IR Carrier Frequencies:\n");
         for (ConsumerIrManager.CarrierFrequencyRange range : freq) {
-            stringBuilder.append(String.format("    %d - %d\n", range.getMinFrequency(),
+            stringBuilder.append(String.format("  %d - %d\n", range.getMinFrequency(),
                     range.getMaxFrequency()));
         }
         return String.valueOf(stringBuilder);
