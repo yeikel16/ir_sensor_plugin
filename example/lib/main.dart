@@ -39,6 +39,8 @@ class _MyAppState extends State<MyApp> {
       getCarrierFrequencies = await IrSensorPlugin.getCarrierFrequencies;
     } on PlatformException {
       platformVersion = 'Failed to get data in a platform.';
+      hasIrEmitter = false;
+      getCarrierFrequencies = 'None';
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -74,7 +76,7 @@ class _MyAppState extends State<MyApp> {
               ),
               RaisedButton(
                 onPressed: () async {
-                  String result =
+                  final String result =
                       await IrSensorPlugin.transmit(pattern: TV_POWER_HEX);
                   debugPrint('Emitting Signal: $result');
                 },
