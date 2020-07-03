@@ -17,8 +17,33 @@ class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   bool _hasIrEmitter = false;
   String _getCarrierFrequencies = 'Unknown';
-  static const TV_POWER_HEX =
-      "0000 006d 0022 0003 00a9 00a8 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0040 0015 0015 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 0702 00a9 00a8 0015 0015 0015 0e6e";
+
+  var power = [
+    169,
+    168,
+    21,
+    63,
+    21,
+    63,
+    21,
+    63,
+    21,
+    63,
+    21,
+    63,
+    21,
+    63,
+    21,
+    63,
+    21,
+    1794,
+    169,
+    168,
+    21,
+    21,
+    21,
+    3694
+  ];
 
   @override
   void initState() {
@@ -77,10 +102,10 @@ class _MyAppState extends State<MyApp> {
               RaisedButton(
                 onPressed: () async {
                   final String result =
-                      await IrSensorPlugin.transmit(pattern: TV_POWER_HEX);
-                  debugPrint('Emitting Signal: $result');
+                      await IrSensorPlugin.transmitListInt(list: power);
+                  debugPrint('Emitting  List Int Signal: $result');
                 },
-                child: Text('Transmitt'),
+                child: Text('Transmitt List Int'),
               ),
               Container(
                 height: 15.0,
@@ -97,6 +122,8 @@ class _MyAppState extends State<MyApp> {
 class FormSpecificCode extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
+  static const power =
+      "0000 006d 0022 0003 00a9 00a8 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0040 0015 0015 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 0702 00a9 00a8 0015 0015 0015 0e6e";
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +135,7 @@ class FormSpecificCode extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Write specific code to transmit',
+                  hintText: 'Write specific String code to transmit',
                   suffixIcon: IconButton(
                     onPressed: () => _textController.clear(),
                     icon: Icon(Icons.clear),
@@ -130,15 +157,15 @@ class FormSpecificCode extends StatelessWidget {
       RaisedButton(
         onPressed: () async {
           if (_formKey.currentState.validate()) {
-            final String result =
-                await IrSensorPlugin.transmit(pattern: _textController.text);
+            final String result = await IrSensorPlugin.transmitString(
+                pattern: _textController.text);
             if (result.contains('Emitting') && result != null) {
               Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text('Broadcasting... ${_textController.text}')));
             }
           }
         },
-        child: Text('Transmit Specific Code'),
+        child: Text('Transmit Specific Code HEX'),
       )
     ]);
   }
