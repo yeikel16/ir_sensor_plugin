@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -61,6 +62,13 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
                 int newFrequency = call.argument("setFrequency");
                 if (newFrequency != frequency) {
                     setFrequency(newFrequency);
+                    result.success("Frequency Changed");
+                }
+                break;
+            case "transmitListInt":
+                ArrayList<Integer> listInt = call.argument("transmitListInt");
+                if (listInt != null) {
+                    transmit(result, listInt);
                 }
                 break;
             case "getCarrierFrequencies":
@@ -117,6 +125,22 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
             mCIR.transmit(frequency, hex2dec(codeForEmitter));
             result.success("Emitting");
         }
+    }
+
+    private void transmit(Result result, ArrayList<Integer> listInt) {
+        if (!listInt.isEmpty()) {
+            mCIR.transmit(frequency, convertIntegers(listInt));
+            result.success("Emitting");
+        }
+    }
+
+    private static int[] convertIntegers(List<Integer> integers) {
+        int[] ret = new int[integers.size()];
+        Iterator<Integer> iterator = integers.iterator();
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = iterator.next().intValue();
+        }
+        return ret;
     }
 
     /**
