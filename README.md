@@ -20,9 +20,15 @@ Query the infrared transmitter's supported carrier frequencies in `Hertz`.
 final String getCarrierFrequencies = await IrSensorPlugin.getCarrierFrequencies;
 ``` 
 
+Change the frequency with which it is transmitted. Default is **38020 Hz**
+``` 
+final String result = await IrSensorPlugin.setFrequencies(40000);
+``` 
+
+
 Transmit an infrared pattern, return a String `"Emitting"` if there was no problem in the process.
 
-The value [pattern] has to be a string that contains the behavior in `HEX`, example:
+The value `pattern` has to be a string that contains the behavior in `HEX`, example:
 ```  
 static const TV_POWER_HEX = "0000 006d 0022 0003 00a9 00a8 0015 003f 0015 
 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 
@@ -30,10 +36,16 @@ static const TV_POWER_HEX = "0000 006d 0022 0003 00a9 00a8 0015 003f 0015
 0015 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 
 0015 0040 0015 0015 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 
 003f 0015 0702 00a9 00a8 0015 0015 0015 0e6e";
-``` 
-``` 
-String result = await IrSensorPlugin.transmit(pattern: TV_POWER_HEX);
-``` 
+
+final String result = await IrSensorPlugin.transmitString(pattern: TV_POWER_HEX);
+```
+
+The value `list` has to be a list of Int, for example:
+```
+var power = [169,168,21,63,21,63,21,63,21,63,21,63,21,63,21,63,21,1794,169,168,21,21,21,3694];
+
+final String result = await IrSensorPlugin.transmitListInt(list: power);
+```
 
 ## Getting Started
 

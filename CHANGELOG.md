@@ -9,3 +9,10 @@
 ## 0.0.3
 
 * Apply suggestions
+
+## 0.1.4
+
+* Rename the `transmit()` method to `transmitString()`. 
+* The `setFrequencies()` method is added.
+* The `transmitListInt()` method is added.
+* Updated example.
