@@ -16,3 +16,6 @@
 * The `setFrequencies()` method is added.
 * The `transmitListInt()` method is added.
 * Updated example.
+
+## 0.1.4+1
+* Fixed  build failed
