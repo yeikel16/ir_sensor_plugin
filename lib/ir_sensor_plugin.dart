@@ -38,14 +38,17 @@ class IrSensorPlugin {
   ///
   /// This method receives a String
   ///
-  /// The value [pattern] has to be a string that contains the behavior in `HEX`, example:
+  /// The value [pattern] has to be a string that contains the behavior in `HEX`.
+  ///
+  /// Example:
+  ///
   /// `TV_POWER_HEX = "0000 006d 0022 0003 00a9 00a8 0015 003f 0015 003f 0015 003f
   /// 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 003f 0015
   /// 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f
   /// 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0040 0015
   /// 0015 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 0702
   /// 00a9 00a8 0015 0015 0015 0e6e"`;
-  static Future<String> transmitString({String pattern}) async {
+  static Future<String> transmitString({required String pattern}) async {
     debugPrint("Send code for Emitter: $pattern");
     final String result = await _channel
         .invokeMethod('codeForEmitter', {"codeForEmitter": pattern});
@@ -59,7 +62,7 @@ class IrSensorPlugin {
   /// 21,21,21,21,21,21,21,21,21,21,21,21,64,21,21,21,63,21,63,21,63,21,63,21,63,
   /// 21,63,21,1794,169,168,21,21,21,3694];
 
-  static Future<String> transmitListInt({List<int> list}) async {
+  static Future<String> transmitListInt({required List<int> list}) async {
     //debugPrint("Send code for Emitter: $pattern");
     final String result = await _channel
         .invokeMethod('transmitListInt', {"transmitListInt": list});
