@@ -1,9 +1,10 @@
 # ir_sensor_plugin_example
 
 Demonstrates how to use the ir_sensor_plugin plugin.
-### Example
 
-``` 
+## Example
+
+```dart
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -69,27 +70,52 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             children: [
-              Container(
+              const SizedBox(
                 height: 15.0,
               ),
               Text('Running on: $_platformVersion\n'),
               Text('Has Ir Emitter: $_hasIrEmitter\n'),
               Text('IR Carrier Frequencies:$_getCarrierFrequencies'),
-              Container(
+              const SizedBox(
                 height: 15.0,
               ),
-              RaisedButton(
-                onPressed: () async {
-                  String result =
-                      await IrSensorPlugin.transmit(pattern: TV_POWER_HEX);
-                  debugPrint('Emitting Signal: $result');
-                },
-                child: Text('Transmitt'),
-              ),
               Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(power.toString()),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final String result =
+                              await IrSensorPlugin.transmitListInt(list: power);
+                          debugPrint('Emitting  List Int Signal: $result');
+                        },
+                        child: Text('Transmitt List Int'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
                 height: 15.0,
               ),
-              FormSpecificCode(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FormSpecificCode(),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -101,7 +127,7 @@ class _MyAppState extends State<MyApp> {
 class FormSpecificCode extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
-
+  
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -112,7 +138,7 @@ class FormSpecificCode extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Write specific code to transmit',
+                  hintText: 'Write specific String code to transmit',
                   suffixIcon: IconButton(
                     onPressed: () => _textController.clear(),
                     icon: Icon(Icons.clear),
@@ -120,7 +146,7 @@ class FormSpecificCode extends StatelessWidget {
                 ),
                 controller: _textController,
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value != null && value.isEmpty) {
                     return 'Write the code to transmit';
                   }
                   return null;
@@ -131,24 +157,26 @@ class FormSpecificCode extends StatelessWidget {
       Container(
         height: 15.0,
       ),
-      RaisedButton(
+      ElevatedButton(
         onPressed: () async {
-          if (_formKey.currentState.validate()) {
-            final String result =
-                await IrSensorPlugin.transmit(pattern: _textController.text);
-            if (result.contains('Emitting') && result != null) {
-              Scaffold.of(context).showSnackBar(SnackBar(
+          final validate = _formKey.currentState?.validate() ?? false;
+          if (validate) {
+            final String result = await IrSensorPlugin.transmitString(
+                pattern: _textController.text);
+            if (result.contains('Emitting')) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text('Broadcasting... ${_textController.text}')));
             }
           }
         },
-        child: Text('Transmit Specific Code'),
+        child: Text('Transmit Specific Code HEX'),
       )
     ]);
   }
 }
 
-``` 
+```
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

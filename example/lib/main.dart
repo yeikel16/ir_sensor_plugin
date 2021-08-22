@@ -90,27 +90,52 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             children: [
-              Container(
+              const SizedBox(
                 height: 15.0,
               ),
               Text('Running on: $_platformVersion\n'),
               Text('Has Ir Emitter: $_hasIrEmitter\n'),
               Text('IR Carrier Frequencies:$_getCarrierFrequencies'),
-              Container(
+              const SizedBox(
                 height: 15.0,
               ),
-              RaisedButton(
-                onPressed: () async {
-                  final String result =
-                      await IrSensorPlugin.transmitListInt(list: power);
-                  debugPrint('Emitting  List Int Signal: $result');
-                },
-                child: Text('Transmitt List Int'),
-              ),
               Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(power.toString()),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final String result =
+                              await IrSensorPlugin.transmitListInt(list: power);
+                          debugPrint('Emitting  List Int Signal: $result');
+                        },
+                        child: Text('Transmitt List Int'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
                 height: 15.0,
               ),
-              FormSpecificCode(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FormSpecificCode(),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -122,8 +147,6 @@ class _MyAppState extends State<MyApp> {
 class FormSpecificCode extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
-  static const power =
-      "0000 006d 0022 0003 00a9 00a8 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 003f 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 003f 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0015 0040 0015 0015 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 003f 0015 0702 00a9 00a8 0015 0015 0015 0e6e";
 
   @override
   Widget build(BuildContext context) {
@@ -134,6 +157,7 @@ class FormSpecificCode extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                key: Key('textField_code_hex'),
                 decoration: InputDecoration(
                   hintText: 'Write specific String code to transmit',
                   suffixIcon: IconButton(
@@ -143,7 +167,7 @@ class FormSpecificCode extends StatelessWidget {
                 ),
                 controller: _textController,
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Write the code to transmit';
                   }
                   return null;
@@ -154,13 +178,15 @@ class FormSpecificCode extends StatelessWidget {
       Container(
         height: 15.0,
       ),
-      RaisedButton(
+      ElevatedButton(
+        key: Key('key_buttom_hex'),
         onPressed: () async {
-          if (_formKey.currentState.validate()) {
+          final validate = _formKey.currentState?.validate() ?? false;
+          if (validate) {
             final String result = await IrSensorPlugin.transmitString(
                 pattern: _textController.text);
-            if (result.contains('Emitting') && result != null) {
-              Scaffold.of(context).showSnackBar(SnackBar(
+            if (result.contains('Emitting')) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text('Broadcasting... ${_textController.text}')));
             }
           }
