@@ -2,7 +2,7 @@
 
 ## 0.0.1
 
-* TODO: Describe initial release.
+* initial release.
 
 ## 0.0.2
 
@@ -27,5 +27,12 @@
 
 * Migrate the plugin to null-safety
 * Migrate the example to null-safety
-* Empruved example desing
-* Added testWidget
+* Improve example desing
+
+## 0.3.0
+
+* **BREAKING CHANGE:** Support for Flutter >= 3.0.0 and Dart >= 2.18.0
+* Change android target version to 31
+* Update gradle dependencies
+* Improve the example.
+* Fix deprecated version of the Android embedding.

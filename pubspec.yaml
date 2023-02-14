@@ -1,6 +1,6 @@
 name: ir_sensor_plugin
 description: This plugin allows Flutter applications to use the infrared sensor on Android starting with API 19
-version: 0.1.4+1
+version: 0.3.0
 homepage: https://github.com/Yeikel200/ir_sensor_plugin
 
 environment:
