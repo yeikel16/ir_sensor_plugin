@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:ir_sensor_plugin/ir_sensor_plugin.dart';
+
+const laskoOnOff =
+    '0000 006D 0000 000C 002E 000E 002E 000E 000E 002E 002E 000E 002E 000E 000E 002E 000E 002E 000E 002E 000E 002E 000E 002E 000E 002E 002E 010D';
 
 void main() {
   runApp(MyApp());
@@ -90,52 +94,34 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             children: [
-              const SizedBox(
+              Container(
                 height: 15.0,
               ),
               Text('Running on: $_platformVersion\n'),
               Text('Has Ir Emitter: $_hasIrEmitter\n'),
               Text('IR Carrier Frequencies:$_getCarrierFrequencies'),
-              const SizedBox(
+              Container(
                 height: 15.0,
+              ),
+              MaterialButton(
+                color: Colors.amber,
+                onPressed: () async {
+                  if (_hasIrEmitter) {
+                    final String result =
+                        await IrSensorPlugin.transmitListInt(list: power);
+
+                    debugPrint('Emitting  List Int Signal: $result');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Not has Ir emitter')));
+                  }
+                },
+                child: Text('Transmitt List Int'),
               ),
               Container(
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.blueAccent)),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text(power.toString()),
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final String result =
-                              await IrSensorPlugin.transmitListInt(list: power);
-                          debugPrint('Emitting  List Int Signal: $result');
-                        },
-                        child: Text('Transmitt List Int'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(
                 height: 15.0,
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueAccent)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: FormSpecificCode(),
-                  ),
-                ),
-              ),
+              FormSpecificCode(hasIrEmitter: _hasIrEmitter),
             ],
           ),
         ),
@@ -145,6 +131,12 @@ class _MyAppState extends State<MyApp> {
 }
 
 class FormSpecificCode extends StatelessWidget {
+  FormSpecificCode({
+    Key? key,
+    required this.hasIrEmitter,
+  }) : super(key: key);
+
+  final bool hasIrEmitter;
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
 
@@ -157,7 +149,6 @@ class FormSpecificCode extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
-                key: Key('textField_code_hex'),
                 decoration: InputDecoration(
                   hintText: 'Write specific String code to transmit',
                   suffixIcon: IconButton(
@@ -167,7 +158,7 @@ class FormSpecificCode extends StatelessWidget {
                 ),
                 controller: _textController,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value?.isEmpty ?? true) {
                     return 'Write the code to transmit';
                   }
                   return null;
@@ -178,17 +169,24 @@ class FormSpecificCode extends StatelessWidget {
       Container(
         height: 15.0,
       ),
-      ElevatedButton(
-        key: Key('key_buttom_hex'),
+      MaterialButton(
+        color: Colors.amber,
         onPressed: () async {
-          final validate = _formKey.currentState?.validate() ?? false;
-          if (validate) {
+          if (hasIrEmitter && (_formKey.currentState?.validate() ?? false)) {
             final String result = await IrSensorPlugin.transmitString(
                 pattern: _textController.text);
             if (result.contains('Emitting')) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('Broadcasting... ${_textController.text}')));
+              ScaffoldMessenger.of(context)
+                ..clearSnackBars()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text('Broadcasting... ${_textController.text}'),
+                  ),
+                );
             }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Not has Ir emitter or invalid code')));
           }
         },
         child: Text('Transmit Specific Code HEX'),

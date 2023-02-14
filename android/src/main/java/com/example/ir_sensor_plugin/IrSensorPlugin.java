@@ -1,9 +1,8 @@
 package com.example.ir_sensor_plugin;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.ConsumerIrManager;
-import android.os.Build;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,12 +12,10 @@ import java.util.List;
 import androidx.annotation.NonNull;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
-import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * IrSensorPlugin
@@ -32,17 +29,12 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "ir_sensor_plugin");
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "ir_sensor_plugin");
         channel.setMethodCallHandler(this);
 
         final Context context = flutterPluginBinding.getApplicationContext();
 
         mCIR = (ConsumerIrManager) context.getSystemService(Context.CONSUMER_IR_SERVICE);
-    }
-
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "ir_sensor_plugin");
-        channel.setMethodCallHandler(new IrSensorPlugin());
     }
 
     @Override
@@ -138,7 +130,7 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
         int[] ret = new int[integers.size()];
         Iterator<Integer> iterator = integers.iterator();
         for (int i = 0; i < ret.length; i++) {
-            ret[i] = iterator.next().intValue();
+            ret[i] = iterator.next();
         }
         return ret;
     }
@@ -162,6 +154,7 @@ public class IrSensorPlugin implements FlutterPlugin, MethodCallHandler {
     /**
      * Query the infrared transmitter's supported carrier frequencies in `Hertz`.
      */
+    @SuppressLint("DefaultLocale")
     private String getCarrierFrequencies() {
         StringBuilder stringBuilder = new StringBuilder();
         ConsumerIrManager.CarrierFrequencyRange[] freq = mCIR.getCarrierFrequencies();
