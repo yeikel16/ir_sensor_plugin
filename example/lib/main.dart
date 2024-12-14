@@ -13,11 +13,13 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   bool _hasIrEmitter = false;
   String _getCarrierFrequencies = 'Unknown';
@@ -132,9 +134,9 @@ class _MyAppState extends State<MyApp> {
 
 class FormSpecificCode extends StatelessWidget {
   FormSpecificCode({
-    Key? key,
+    super.key,
     required this.hasIrEmitter,
-  }) : super(key: key);
+  });
 
   final bool hasIrEmitter;
   final _formKey = GlobalKey<FormState>();
@@ -175,7 +177,7 @@ class FormSpecificCode extends StatelessWidget {
           if (hasIrEmitter && (_formKey.currentState?.validate() ?? false)) {
             final String result = await IrSensorPlugin.transmitString(
                 pattern: _textController.text);
-            if (result.contains('Emitting')) {
+            if (result.contains('Emitting') && context.mounted) {
               ScaffoldMessenger.of(context)
                 ..clearSnackBars()
                 ..showSnackBar(
